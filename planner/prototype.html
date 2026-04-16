@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+:root {
+  --bg:         #0A0A0A;
+  --surface:    #141414;
+  --elevated:   #1C1C1C;
+  --card:       #181818;
+  --border:     #242424;
+
+  --text:       #F5F5F5;
+  --text-2:     #888;
+  --text-3:     #444;
+
+  --orange:     #F97316;
+  --orange-dim: #1F0D00;
+  --orange-soft:#2A1400;
+
+  --green:      #22C55E;
+  --green-dim:  #0D1F12;
+  --yellow:     #EAB308;
+  --yellow-dim: #1A1600;
+  --red:        #EF4444;
+  --neutral:    #555;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+button{border:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+input{font-family:inherit;outline:none}
+
+/* ── SHELL ── */
+#app{display:flex;flex-direction:column;height:100dvh;max-width:430px;margin:0 auto;overflow:hidden;position:relative}
+
+/* ── HEADER ── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:56px;flex-shrink:0;
+}
+.hdr-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.hdr-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;background:var(--surface);color:var(--text-2);transition:background .15s}
+.hdr-icon:hover{background:var(--elevated)}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  display:flex;background:var(--surface);
+  border-top:1px solid var(--border);
+  padding-bottom:env(safe-area-inset-bottom,0px);flex-shrink:0
+}
+.ntab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:10px 0;min-height:60px;
+  color:var(--text-3);font-size:10px;font-weight:600;letter-spacing:.04em;
+  text-transform:uppercase;transition:color .15s
+}
+.ntab.active{color:var(--orange)}
+.ntab svg{width:20px;height:20px}
+
+/* ── HOJE ── */
+#screen-hoje{padding:0}
+.hoje-hero{
+  padding:24px 20px 20px;
+  background:var(--bg);
+}
+.hoje-greeting{font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.hoje-date-row{display:flex;align-items:flex-end;justify-content:space-between}
+.hoje-date{font-size:52px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px}
+.hoje-weekday{font-size:22px;font-weight:300;color:var(--text-2);line-height:1.2}
+.hoje-dot{
+  width:48px;height:48px;border-radius:50%;background:var(--orange);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-bottom:4px
+}
+.hoje-dot svg{width:22px;height:22px;color:#fff}
+
+/* status strip */
+.status-strip{
+  display:flex;gap:8px;padding:16px 20px 0;
+}
+.status-chip{
+  flex:1;background:var(--surface);border-radius:12px;
+  padding:14px 12px;display:flex;flex-direction:column;gap:6px
+}
+.status-chip-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2)}
+.status-chip-value{font-size:26px;font-weight:800;line-height:1}
+.status-chip-sub{font-size:11px;color:var(--text-2)}
+.orange{color:var(--orange)}
+.green{color:var(--green)}
+
+/* section */
+.sec{padding:24px 20px 0}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-2)}
+.sec-count{font-size:11px;font-weight:700;color:var(--orange);background:var(--orange-dim);padding:2px 8px;border-radius:20px}
+.sec-count-green{color:var(--green);background:var(--green-dim)}
+
+/* task card */
+.task-card{
+  background:var(--surface);border-radius:14px;
+  padding:14px 16px;margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:12px
+}
+.task-card:last-child{margin-bottom:0}
+.tc-dot{
+  width:18px;height:18px;border-radius:50%;border:1.5px solid var(--text-3);
+  flex-shrink:0;margin-top:2px
+}
+.tc-dot-done{border-color:var(--green);background:var(--green);display:flex;align-items:center;justify-content:center}
+.tc-dot-done::after{content:'✓';font-size:9px;color:#000;font-weight:800}
+.tc-body{flex:1;min-width:0}
+.tc-empresa{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--orange);margin-bottom:3px}
+.tc-text{font-size:14px;color:var(--text);line-height:1.4}
+.tc-text-done{color:var(--text-3);text-decoration:line-through}
+
+.show-more-btn{
+  display:block;width:100%;text-align:center;
+  font-size:13px;font-weight:600;color:var(--orange);
+  padding:12px;margin-top:4px
+}
+
+/* agenda card */
+.agenda-card-v2{
+  background:var(--surface);border-radius:14px;overflow:hidden;margin-bottom:8px
+}
+.agenda-card-header{
+  background:var(--orange);padding:10px 16px;
+  display:flex;align-items:center;gap:8px
+}
+.agenda-card-header span{font-size:12px;font-weight:700;color:#fff;letter-spacing:.04em;text-transform:uppercase}
+.agenda-card-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.agenda-item-v2{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text)}
+.agenda-item-v2::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:8px}
+
+.hoje-bottom-pad{height:32px}
+
+/* ── PENDENTES ── */
+#screen-pendentes{padding:20px}
+.empresa-block{margin-bottom:28px}
+.empresa-hdr{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;background:var(--surface);border-radius:14px;
+  cursor:pointer;margin-bottom:2px;transition:background .15s
+}
+.empresa-hdr:hover{background:var(--elevated)}
+.emp-icon{color:var(--orange);flex-shrink:0}
+.emp-name{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.emp-badge{
+  font-size:12px;font-weight:800;color:var(--orange);
+  background:var(--orange-dim);padding:3px 10px;border-radius:20px
+}
+.emp-chev{color:var(--text-3);transition:transform .2s}
+.empresa-block.collapsed .emp-chev{transform:rotate(-90deg)}
+.empresa-block.collapsed .emp-body{display:none}
+.emp-body{padding:8px 0 0 0}
+
+.feat-block{
+  background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:6px
+}
+.feat-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-2);margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between
+}
+.feat-label .count{font-size:10px;color:var(--text-3);font-weight:500;text-transform:none;letter-spacing:0}
+
+.pt{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.pt:last-child{border-bottom:none;padding-bottom:0}
+.pt-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);flex-shrink:0;margin-top:6px}
+.pt-text{font-size:13px;color:var(--text-2);line-height:1.4}
+
+/* ── DIÁRIOS ── */
+#screen-diarios{padding:20px}
+.dly-group-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
+.dly-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.dly-card{
+  background:var(--surface);border-radius:14px;
+  padding:16px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:background .15s
+}
+.dly-card:hover{background:var(--elevated)}
+.dly-card.today{border:1px solid var(--orange)}
+.dly-num{
+  flex-shrink:0;width:48px;text-align:center
+}
+.dly-day{font-size:28px;font-weight:900;line-height:1}
+.dly-card.today .dly-day{color:var(--orange)}
+.dly-mon{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);font-weight:600}
+.dly-info{flex:1;min-width:0}
+.dly-title{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dly-sub{font-size:12px;color:var(--text-2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dly-arr{color:var(--text-3);flex-shrink:0}
+
+/* ── READER ── */
+#screen-reader{display:none;padding:20px}
+#screen-reader.active{display:block}
+.rd-title{font-size:22px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:24px}
+.rd-h2{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--orange);margin-top:28px;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--border)
+}
+.rd-h3{font-size:13px;font-weight:700;color:var(--text-2);margin-top:16px;margin-bottom:8px}
+.rd-p{font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:12px}
+.rd-task{display:flex;align-items:flex-start;gap:10px;padding:5px 0}
+.rd-open{color:var(--text)}
+.rd-done{color:var(--text-3);text-decoration:line-through}
+.rd-check{width:14px;height:14px;border:1.5px solid var(--text-3);border-radius:3px;flex-shrink:0;margin-top:3px}
+.rd-checkd{width:14px;height:14px;background:var(--green);border-radius:3px;flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center}
+.rd-checkd::after{content:'✓';font-size:9px;color:#000;font-weight:800}
+.rd-ul{margin:0 0 12px 0;padding-left:16px}
+.rd-li{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:4px;list-style:disc}
+.rd-code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--elevated);padding:1px 5px;border-radius:4px;color:var(--text-2)}
+.rd-strong{font-weight:600;color:var(--text)}
+.rd-bottom-pad{height:32px}
+
+/* reader nav header */
+.hdr-nav{display:flex;align-items:center;gap:6px}
+.hdr-nav button{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:8px;background:var(--surface);color:var(--text-2);transition:background .15s
+}
+.hdr-nav button:hover{background:var(--elevated)}
+.hdr-nav button:disabled{opacity:.3;cursor:default}
+.hdr-nav .nd-label{font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center}
+
+/* ── PLANNERS ── */
+#screen-planners{padding:20px}
+.pl-group{margin-bottom:28px}
+.pl-group-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px}
+.pl-card{
+  background:var(--surface);border-radius:14px;
+  padding:16px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px
+}
+.pl-card-info{flex:1;min-width:0}
+.pl-card-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-card-empresa{font-size:12px;color:var(--text-2);margin-top:3px}
+.badge{font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.b-build{background:var(--orange-dim);color:var(--orange)}
+.b-approved{background:var(--green-dim);color:var(--green)}
+.b-draft{background:var(--yellow-dim);color:var(--yellow)}
+.b-done{background:#1A1A1A;color:var(--neutral)}
+
+/* ── CONFIG ── */
+#screen-config{padding:20px}
+.cfg-section{margin-bottom:28px}
+.cfg-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-2);margin-bottom:14px}
+.cfg-field{margin-bottom:14px}
+.cfg-label{font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:6px;display:block}
+.cfg-input-wrap{position:relative}
+.cfg-input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;
+  transition:border-color .15s
+}
+.cfg-input:focus{border-color:var(--orange)}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-3);cursor:pointer}
+.btn-main{
+  width:100%;background:var(--orange);color:#fff;
+  border-radius:12px;padding:14px;font-size:14px;font-weight:700;
+  letter-spacing:.02em;transition:opacity .15s;margin-bottom:10px
+}
+.btn-main:hover{opacity:.85}
+.btn-ghost{
+  width:100%;color:var(--red);border:1px solid var(--border);
+  border-radius:12px;padding:14px;font-size:14px;font-weight:600;
+  transition:border-color .15s,background .15s
+}
+.btn-ghost:hover{border-color:var(--red);background:#1A0808}
+.cfg-ok{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--green);padding:8px 0}
+.cfg-divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+
+/* ── SKELETON ── */
+.sk{background:var(--elevated);border-radius:8px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="hdr" id="main-hdr">
+    <span class="hdr-label" id="hdr-label">Central</span>
+    <div style="display:flex;gap:8px">
+      <button class="hdr-icon" onclick="showTab('config')" id="btn-settings">
+        <i data-lucide="settings" style="width:16px;height:16px"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ══ HOJE ══ -->
+    <section class="screen active" id="screen-hoje">
+      <div class="hoje-hero">
+        <div class="hoje-greeting">Bom dia, Felippe</div>
+        <div class="hoje-date-row">
+          <div>
+            <div class="hoje-date" id="hoje-num">16</div>
+            <div class="hoje-weekday" id="hoje-wkd">Quarta-feira</div>
+          </div>
+          <div class="hoje-dot"><i data-lucide="sun" style="width:22px;height:22px;color:#fff"></i></div>
+        </div>
+      </div>
+
+      <div class="status-strip">
+        <div class="status-chip">
+          <span class="status-chip-label">Pendentes</span>
+          <span class="status-chip-value orange">9</span>
+          <span class="status-chip-sub">tasks abertas</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-chip-label">Concluídos</span>
+          <span class="status-chip-value green">4</span>
+          <span class="status-chip-sub">feitos hoje</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-chip-label">Planners</span>
+          <span class="status-chip-value" style="color:var(--text)">8</span>
+          <span class="status-chip-sub">em andamento</span>
+        </div>
+      </div>
+
+      <!-- Agenda -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">Agenda de Hoje</span>
+        </div>
+        <div class="agenda-card-v2">
+          <div class="agenda-card-header">
+            <i data-lucide="calendar" style="width:14px;height:14px;color:#fff"></i>
+            <span>16 de Abril · Quarta</span>
+          </div>
+          <div class="agenda-card-body">
+            <div class="agenda-item-v2">Aprovar TASKS CRM 004-correcoes-core (Fase 1 — índices)</div>
+            <div class="agenda-item-v2">Iniciar BarberPro TK-001 / TK-002 / TK-003</div>
+            <div class="agenda-item-v2">Aprovar 023-melhorias-empresa-nfe ES4</div>
+            <div class="agenda-item-v2">Revisar planners: BI MVP, WhatsApp IA, Plugins Obsidian</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pendentes -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">Em Aberto</span>
+          <span class="sec-count">9</span>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot"></div>
+          <div class="tc-body">
+            <div class="tc-empresa">Reserva Fiscal</div>
+            <div class="tc-text">CRM 004 — Aprovar TASKS e iniciar Fase 1 (T01-T05)</div>
+          </div>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot"></div>
+          <div class="tc-body">
+            <div class="tc-empresa">Reserva Fiscal</div>
+            <div class="tc-text">ART — Definir precificação e formalizar parceria</div>
+          </div>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot"></div>
+          <div class="tc-body">
+            <div class="tc-empresa">Marechal Barbearia</div>
+            <div class="tc-text">BarberPro 001 — Iniciar BUILD TK-001 / TK-002 / TK-003</div>
+          </div>
+        </div>
+        <div id="mais-block" style="display:none">
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">Vault</div><div class="tc-text">Plugins Obsidian — Aprovar SPEC + PLAN e criar TASKS</div></div>
+          </div>
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">Reserva Fiscal</div><div class="tc-text">023 Ambiente Reserva — Aprovar ES4 T01-T03</div></div>
+          </div>
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">Reserva Fiscal</div><div class="tc-text">021/022 — Cadeia de refatoração NF-e pendente</div></div>
+          </div>
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">Reserva Fiscal</div><div class="tc-text">BI MVP 001 — Aprovar TASKS</div></div>
+          </div>
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">Marechal Barbearia</div><div class="tc-text">WhatsApp IA 002 — Aprovar TASKS</div></div>
+          </div>
+          <div class="task-card">
+            <div class="tc-dot"></div>
+            <div class="tc-body"><div class="tc-empresa">ASX Transportes</div><div class="tc-text">ASX Sistema — git init + Fase 1 Setup</div></div>
+          </div>
+        </div>
+        <button class="show-more-btn" id="btn-mais" onclick="toggleMais()">+ 6 mais</button>
+      </div>
+
+      <!-- Concluído -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">Concluído Hoje</span>
+          <span class="sec-count sec-count-green">4</span>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot tc-dot-done"></div>
+          <div class="tc-body"><div class="tc-empresa" style="color:var(--green)">Reserva Fiscal</div><div class="tc-text tc-text-done">Novo produto ART estruturado (PRJ-ART + material comercial)</div></div>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot tc-dot-done"></div>
+          <div class="tc-body"><div class="tc-empresa" style="color:var(--green)">Reserva Fiscal</div><div class="tc-text tc-text-done">CRM 004-correcoes-core — TASKS.md completo (41 tasks, 6 fases)</div></div>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot tc-dot-done"></div>
+          <div class="tc-body"><div class="tc-empresa" style="color:var(--green)">Vault</div><div class="tc-text tc-text-done">001-integracao-plugins-obsidian — SPEC + PLAN criados</div></div>
+        </div>
+        <div class="task-card">
+          <div class="tc-dot tc-dot-done"></div>
+          <div class="tc-body"><div class="tc-empresa" style="color:var(--green)">Reserva Fiscal</div><div class="tc-text tc-text-done">MOC-Reserva-Fiscal atualizado com ART</div></div>
+        </div>
+      </div>
+      <div class="hoje-bottom-pad"></div>
+    </section>
+
+    <!-- ══ PENDENTES ══ -->
+    <section class="screen" id="screen-pendentes">
+
+      <div class="empresa-block" id="grp-rf">
+        <div class="empresa-hdr" onclick="toggleEmp('grp-rf')">
+          <i data-lucide="building-2" class="emp-icon" style="width:18px;height:18px"></i>
+          <span class="emp-name">Reserva Fiscal</span>
+          <span class="emp-badge">12</span>
+          <i data-lucide="chevron-down" class="emp-chev" style="width:16px;height:16px"></i>
+        </div>
+        <div class="emp-body">
+          <div class="feat-block">
+            <div class="feat-label">021-refatoracao-nfe-ui <span class="count">3 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T01 — Separar componentes do serve.js monolítico</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T02 — Criar módulo NfeService isolado</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T03 — Remover credenciais hardcoded</span></div>
+          </div>
+          <div class="feat-block">
+            <div class="feat-label">CRM 004-correcoes-core <span class="count">5 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T01 — @@index em Client model</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T02 — @@index em Contato model</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T06 — invalidateQueries após cadastrar empresa</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T12 — Search com debounce 300ms</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T18 — Fix scroll do ClientDrawer</span></div>
+          </div>
+          <div class="feat-block">
+            <div class="feat-label">BI ReservaFiscal 001-mvp <span class="count">4 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T01 — Setup Next.js + Prisma + shadcn</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T02 — Dashboard de métricas de clientes</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T03 — Integração com dados do CRM</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">T04 — Export para PDF/Excel</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empresa-block" id="grp-mb">
+        <div class="empresa-hdr" onclick="toggleEmp('grp-mb')">
+          <i data-lucide="scissors" class="emp-icon" style="width:18px;height:18px"></i>
+          <span class="emp-name">Marechal Barbearia</span>
+          <span class="emp-badge">3</span>
+          <i data-lucide="chevron-down" class="emp-chev" style="width:16px;height:16px"></i>
+        </div>
+        <div class="emp-body">
+          <div class="feat-block">
+            <div class="feat-label">BarberPro 001 — Drag-Select <span class="count">3 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">TK-001 — Setup react-dnd no projeto</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">TK-002 — AgendaGrid com slots de 15min</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">TK-003 — Drag handler com snap de horário</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empresa-block" id="grp-asx">
+        <div class="empresa-hdr" onclick="toggleEmp('grp-asx')">
+          <i data-lucide="truck" class="emp-icon" style="width:18px;height:18px"></i>
+          <span class="emp-name">ASX Transportes</span>
+          <span class="emp-badge">8</span>
+          <i data-lucide="chevron-down" class="emp-chev" style="width:16px;height:16px"></i>
+        </div>
+        <div class="emp-body">
+          <div class="feat-block">
+            <div class="feat-label">ASX Sistema 001 — MVP Core <span class="count">8 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F1-T01 — git init + estrutura base</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F1-T02 — Setup Next.js + TypeScript + Prisma</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F1-T03 — Configurar PostgreSQL local</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F1-T04 — Schema inicial: CTE + NF-e</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F2-T01 — CRUD de CTE básico</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F2-T02 — CRUD de NF-e básico</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F2-T03 — Dashboard CR/CP</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">F2-T04 — Export de relatórios</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empresa-block" id="grp-vault">
+        <div class="empresa-hdr" onclick="toggleEmp('grp-vault')">
+          <i data-lucide="folder-open" class="emp-icon" style="width:18px;height:18px"></i>
+          <span class="emp-name">Vault — Concierge</span>
+          <span class="emp-badge">5</span>
+          <i data-lucide="chevron-down" class="emp-chev" style="width:16px;height:16px"></i>
+        </div>
+        <div class="emp-body">
+          <div class="feat-block">
+            <div class="feat-label">001-integracao-plugins-obsidian <span class="count">5 abertas</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">B1 — Configurar Calendar plugin</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">B2 — Criar Template-Agenda.md com query Tasks</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">B3 — Reescrever Home.md com Dataview</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">B4 — Criar Template-Kanban-Planner.md</span></div>
+            <div class="pt"><div class="pt-dot"></div><span class="pt-text">B5 — Diagramas Excalidraw nos planners complexos</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
+    </section>
+
+    <!-- ══ DIÁRIOS ══ -->
+    <section class="screen" id="screen-diarios">
+      <div class="dly-group-label">Hoje</div>
+      <div class="dly-list">
+        <div class="dly-card today" onclick="openReader('2026-04-16')">
+          <div class="dly-num"><div class="dly-day">16</div><div class="dly-mon">Abr</div></div>
+          <div class="dly-info">
+            <div class="dly-title">ART Novo Produto + CRM TASKS + Plugins Obsidian</div>
+            <div class="dly-sub">Quarta-feira · 9 pendentes · 4 concluídos</div>
+          </div>
+          <i data-lucide="chevron-right" class="dly-arr" style="width:16px;height:16px"></i>
+        </div>
+      </div>
+
+      <div class="dly-group-label">Esta Semana</div>
+      <div class="dly-list">
+        <div class="dly-card" onclick="openReader('2026-04-15')">
+          <div class="dly-num"><div class="dly-day">15</div><div class="dly-mon">Abr</div></div>
+          <div class="dly-info"><div class="dly-title">CRM + BarberPro Aprovação</div><div class="dly-sub">Terça-feira</div></div>
+          <i data-lucide="chevron-right" class="dly-arr" style="width:16px;height:16px"></i>
+        </div>
+        <div class="dly-card" onclick="openReader('2026-04-14')">
+          <div class="dly-num"><div class="dly-day">14</div><div class="dly-mon">Abr</div></div>
+          <div class="dly-info"><div class="dly-title">BarberPro + Daily</div><div class="dly-sub">Segunda-feira</div></div>
+          <i data-lucide="chevron-right" class="dly-arr" style="width:16px;height:16px"></i>
+        </div>
+        <div class="dly-card" onclick="openReader('2026-04-13')">
+          <div class="dly-num"><div class="dly-day">13</div><div class="dly-mon">Abr</div></div>
+          <div class="dly-info"><div class="dly-title">Auditoria Projetos — PC Empresa #2</div><div class="dly-sub">Domingo</div></div>
+          <i data-lucide="chevron-right" class="dly-arr" style="width:16px;height:16px"></i>
+        </div>
+      </div>
+
+      <div class="dly-group-label">Mais Antigos</div>
+      <div class="dly-list" style="margin-bottom:20px">
+        <div class="dly-card" onclick="openReader('2026-03-24')">
+          <div class="dly-num"><div class="dly-day">24</div><div class="dly-mon">Mar</div></div>
+          <div class="dly-info"><div class="dly-title">Início do Vault</div><div class="dly-sub">Segunda-feira</div></div>
+          <i data-lucide="chevron-right" class="dly-arr" style="width:16px;height:16px"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ READER ══ -->
+    <section id="screen-reader">
+      <div style="padding:20px">
+        <div class="rd-title" id="rd-title"></div>
+        <div id="rd-body"></div>
+        <div class="rd-bottom-pad"></div>
+      </div>
+    </section>
+
+    <!-- ══ PLANNERS ══ -->
+    <section class="screen" id="screen-planners">
+
+      <div class="pl-group">
+        <div class="pl-group-label">Em Build</div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">BarberPro 001 — Agenda Drag-Select</div>
+            <div class="pl-card-empresa">Marechal Barbearia · 3 tasks abertas</div>
+          </div>
+          <span class="badge b-build">Build</span>
+        </div>
+      </div>
+
+      <div class="pl-group">
+        <div class="pl-group-label">Aprovados</div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">024 — Cancelamento NF-e</div>
+            <div class="pl-card-empresa">Reserva Fiscal · TASKS aprovadas</div>
+          </div>
+          <span class="badge b-approved">Aprovado</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">021 — Refatoração NF-e UI</div>
+            <div class="pl-card-empresa">Reserva Fiscal · TASKS aprovadas</div>
+          </div>
+          <span class="badge b-approved">Aprovado</span>
+        </div>
+      </div>
+
+      <div class="pl-group">
+        <div class="pl-group-label">Em Rascunho</div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">CRM 004 — Correções Core</div>
+            <div class="pl-card-empresa">Reserva Fiscal · 41 tasks</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">BI ReservaFiscal 001 — MVP</div>
+            <div class="pl-card-empresa">Reserva Fiscal · aguarda aprovação</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">BarberPro 002 — WhatsApp IA Marketing</div>
+            <div class="pl-card-empresa">Marechal Barbearia · aguarda aprovação</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">Plugins Obsidian 001 — Integração</div>
+            <div class="pl-card-empresa">Vault Concierge · SPEC + PLAN prontos</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">023 — Melhorias Empresa NF-e Interestadual</div>
+            <div class="pl-card-empresa">Reserva Fiscal · ES4 pronto</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+        <div class="pl-card">
+          <div class="pl-card-info">
+            <div class="pl-card-name">ASX Sistema 001 — MVP Core</div>
+            <div class="pl-card-empresa">ASX Transportes · aguarda git init</div>
+          </div>
+          <span class="badge b-draft">Rascunho</span>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
+    </section>
+
+    <!-- ══ CONFIG ══ -->
+    <section class="screen" id="screen-config">
+      <div class="cfg-section">
+        <div class="cfg-section-title">Acesso ao Vault</div>
+        <div class="cfg-field">
+          <label class="cfg-label">GitHub Token (PAT)</label>
+          <div class="cfg-input-wrap">
+            <input type="password" class="cfg-input" id="cfg-token" value="ghp_xxxxxxxxxxxxxxxxxxxx">
+            <span class="eye-btn" onclick="toggleTok()"><i data-lucide="eye" style="width:15px;height:15px"></i></span>
+          </div>
+        </div>
+        <div class="cfg-field">
+          <label class="cfg-label">Owner</label>
+          <input type="text" class="cfg-input" value="felippeabielcosta">
+        </div>
+        <div class="cfg-field">
+          <label class="cfg-label">Repositório</label>
+          <input type="text" class="cfg-input" value="concierge">
+        </div>
+        <div class="cfg-field">
+          <label class="cfg-label">Branch</label>
+          <input type="text" class="cfg-input" value="main">
+        </div>
+        <button class="btn-main" onclick="testCfg()">Testar Conexão</button>
+        <div class="cfg-ok" id="cfg-ok" style="display:none">
+          <i data-lucide="check-circle-2" style="width:16px;height:16px"></i>
+          Conectado — vault-concierge · 247 arquivos
+        </div>
+        <button class="btn-main">Salvar</button>
+      </div>
+      <hr class="cfg-divider">
+      <button class="btn-ghost">Limpar configuração</button>
+      <div style="height:20px"></div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="ntab active" id="tab-hoje" onclick="showTab('hoje')">
+      <i data-lucide="sun"></i>Hoje
+    </button>
+    <button class="ntab" id="tab-pendentes" onclick="showTab('pendentes')">
+      <i data-lucide="circle-check"></i>Pendentes
+    </button>
+    <button class="ntab" id="tab-diarios" onclick="showTab('diarios')">
+      <i data-lucide="book-open"></i>Diários
+    </button>
+    <button class="ntab" id="tab-planners" onclick="showTab('planners')">
+      <i data-lucide="layers"></i>Planners
+    </button>
+  </nav>
+
+</div>
+<script>
+// date
+(function(){
+  const d=new Date(2026,3,16);
+  const days=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  document.getElementById('hoje-num').textContent=d.getDate();
+  document.getElementById('hoje-wkd').textContent=days[d.getDay()];
+})();
+
+// tab navigation
+let currentTab='hoje';
+let inReader=false;
+
+function showTab(t){
+  if(inReader) closeReader();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+t).classList.add('active');
+  const tb=document.getElementById('tab-'+t);
+  if(tb) tb.classList.add('active');
+  currentTab=t;
+  const labels={hoje:'Central',pendentes:'Pendentes',diarios:'Diários',planners:'Planners',config:'Configuração'};
+  document.getElementById('hdr-label').textContent=labels[t]||t;
+  document.getElementById('btn-settings').style.display=t==='hoje'?'flex':'none';
+  document.getElementById('reader-nav')?.remove();
+}
+
+// daily data
+const dailyData={
+  '2026-04-16':{
+    title:'ART Novo Produto + CRM TASKS + Plugins Obsidian',
+    body:`
+      <div class="rd-h2">Resumo</div>
+      <p class="rd-p">Dia de expansão de produto e organização do vault: documentação do ART (Análise de Risco Tributário) como novo produto da Reserva Fiscal, TASKS.md completo do CRM 004 (41 tasks em 6 fases) e SDD do planner de integração de plugins Obsidian.</p>
+      <div class="rd-h2">O que foi feito</div>
+      <div class="rd-h3">Novo Produto ART — Reserva Fiscal</div>
+      <ul class="rd-ul">
+        <li class="rd-li"><span class="rd-strong">PRJ-ART.md</span> — Produto completo: visão, público-alvo, 4 módulos de análise</li>
+        <li class="rd-li"><span class="rd-strong">DOC-Apresentacao-Comercial-ART.md</span> — Material de vendas</li>
+        <li class="rd-li"><span class="rd-strong">MOC-Reserva-Fiscal.md</span> — Atualizado (status: Em Descoberta)</li>
+      </ul>
+      <p class="rd-p">Case Jumori: R$ 4,95M em riscos + R$ 1,01M em oportunidades. Produto de entrada — gera urgência com números concretos.</p>
+      <div class="rd-h3">CRM 004-correcoes-core</div>
+      <ul class="rd-ul">
+        <li class="rd-li">Fase 1 (T01-T05): <span class="rd-code">@@index</span> em Client, Contato, Parceiro, Event</li>
+        <li class="rd-li">Fase 2 (T06-T11): React Query <span class="rd-code">invalidateQueries</span></li>
+        <li class="rd-li">Fase 3 (T12-T17): Buscas com debounce 300ms</li>
+        <li class="rd-li">Fase 4 (T18-T24): Scroll ClientDrawer + fix CORS R2</li>
+        <li class="rd-li">Fase 5-6: UI + Proxy CNPJ</li>
+      </ul>
+      <div class="rd-h2">Em Aberto</div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>CRM 004 — Aprovar TASKS e iniciar Fase 1</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>ART — Definir precificação e formalizar parceria</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>BarberPro 001 — Iniciar BUILD TK-001/002/003</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>023-melhorias-empresa-nfe — Aprovar ES4 T01-T03</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>Plugins Obsidian — Aprovar SPEC + PLAN e criar TASKS</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>021/022 Ambiente Reserva — cadeia NF-e</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>BI MVP 001 — Aprovar TASKS</span></div>
+      <div class="rd-task rd-open"><div class="rd-check"></div><span>ASX Sistema — git init + Fase 1</span></div>
+      <div class="rd-h2">Concluído</div>
+      <div class="rd-task rd-done"><div class="rd-checkd"></div><span>Produto ART estruturado (PRJ-ART + material comercial)</span></div>
+      <div class="rd-task rd-done"><div class="rd-checkd"></div><span>CRM 004-correcoes-core — TASKS.md (41 tasks, 6 fases)</span></div>
+      <div class="rd-task rd-done"><div class="rd-checkd"></div><span>Vault-Concierge 001 — SDD (SPEC + PLAN)</span></div>
+      <div class="rd-task rd-done"><div class="rd-checkd"></div><span>MOC-Reserva-Fiscal atualizado com ART</span></div>
+      <div class="rd-h2">Reflexão</div>
+      <div class="rd-h3">O que funcionou</div>
+      <p class="rd-p">ART é produto de alto impacto com estruturação rápida. TASKS do CRM com paralelismo claro. SDD dos plugins resolve atrito real de manutenção manual.</p>
+      <div class="rd-h3">O que ajustar amanhã</div>
+      <p class="rd-p">Acúmulo crítico: 023, CRM 004, BI MVP, BarberPro WhatsApp, Plugins — todos aguardam aprovação. BarberPro drag-select aprovado há 3 dias sem BUILD.</p>
+    `
+  },
+  '2026-04-15':{title:'CRM + BarberPro Aprovação',body:'<p class="rd-p">Conteúdo do diário de 15/04.</p>'},
+  '2026-04-14':{title:'BarberPro + Daily',body:'<p class="rd-p">Conteúdo do diário de 14/04.</p>'},
+  '2026-04-13':{title:'Auditoria Projetos — PC Empresa #2',body:'<p class="rd-p">Conteúdo do diário de 13/04.</p>'},
+  '2026-03-24':{title:'Início do Vault',body:'<p class="rd-p">Conteúdo do diário de 24/03.</p>'}
+};
+const dates=['2026-04-16','2026-04-15','2026-04-14','2026-04-13','2026-03-24'];
+let rdIdx=0;
+
+function openReader(date){
+  rdIdx=dates.indexOf(date);
+  renderRd();
+  document.getElementById('screen-diarios').classList.remove('active');
+  const rs=document.getElementById('screen-reader');
+  rs.classList.add('active');
+  rs.style.display='block';
+  inReader=true;
+
+  document.getElementById('hdr-label').textContent='';
+  document.getElementById('btn-settings').style.display='none';
+
+  const nav=document.createElement('div');
+  nav.id='reader-nav';
+  nav.style.cssText='display:flex;align-items:center;gap:6px';
+  nav.innerHTML=`
+    <button id="rn-prev" onclick="rdNav(-1)" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--surface);color:var(--text-2)">
+      <i data-lucide="chevron-left" style="width:16px;height:16px"></i>
+    </button>
+    <span id="rn-label" style="font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center"></span>
+    <button id="rn-next" onclick="rdNav(1)" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--surface);color:var(--text-2)">
+      <i data-lucide="chevron-right" style="width:16px;height:16px"></i>
+    </button>
+  `;
+  document.getElementById('main-hdr').appendChild(nav);
+  updateRdNav();
+  lucide.createIcons();
+}
+
+function renderRd(){
+  const d=dailyData[dates[rdIdx]];
+  document.getElementById('rd-title').textContent=d?d.title:'Diário não encontrado';
+  document.getElementById('rd-body').innerHTML=d?d.body:'';
+  document.querySelector('.content').scrollTop=0;
+}
+
+function updateRdNav(){
+  const date=dates[rdIdx];
+  const [,m,d]=date.split('-');
+  const ms=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  document.getElementById('rn-label').textContent=d+' '+ms[parseInt(m)-1];
+  document.getElementById('rn-prev').disabled=rdIdx>=dates.length-1;
+  document.getElementById('rn-next').disabled=rdIdx===0;
+}
+
+function rdNav(dir){
+  const next=rdIdx+(-dir);
+  if(next<0||next>=dates.length) return;
+  rdIdx=next;
+  renderRd();
+  updateRdNav();
+  lucide.createIcons();
+}
+
+function closeReader(){
+  const rs=document.getElementById('screen-reader');
+  rs.classList.remove('active');
+  rs.style.display='none';
+  document.getElementById('screen-diarios').classList.add('active');
+  document.getElementById('reader-nav')?.remove();
+  inReader=false;
+}
+
+function toggleEmp(id){document.getElementById(id).classList.toggle('collapsed')}
+function toggleMais(){
+  const el=document.getElementById('mais-block');
+  const btn=document.getElementById('btn-mais');
+  if(el.style.display==='none'){el.style.display='block';btn.textContent='Mostrar menos'}
+  else{el.style.display='none';btn.textContent='+ 6 mais'}
+}
+function testCfg(){
+  document.getElementById('cfg-ok').style.display='flex';
+  lucide.createIcons();
+}
+function toggleTok(){
+  const i=document.getElementById('cfg-token');
+  i.type=i.type==='password'?'text':'password';
+}
+
+lucide.createIcons();
+showTab('hoje');
+</script>
+</body>
+</html>

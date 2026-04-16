@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Concierge">
+  <link rel="manifest" href="/concierge-mobile/manifest.json">
+  <link rel="apple-touch-icon" href="/concierge-mobile/icon.svg">
+  <link rel="icon" type="image/svg+xml" href="/concierge-mobile/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Concierge</title>
+</head>
+<body>
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="hdr" id="main-hdr">
+      <span class="hdr-label" id="hdr-label">Central</span>
+      <div style="display:flex;gap:8px">
+        <button class="hdr-icon" id="btn-settings" aria-label="Configurações">
+          <!-- lucide:settings injetado via JS -->
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content" id="main-content">
+
+      <!-- HOJE -->
+      <section class="screen" id="screen-hoje" aria-label="Hoje"></section>
+
+      <!-- PENDENTES -->
+      <section class="screen" id="screen-pendentes" aria-label="Pendentes"></section>
+
+      <!-- DIÁRIOS (lista) -->
+      <section class="screen" id="screen-diarios" aria-label="Diários"></section>
+
+      <!-- READER (daily aberto) -->
+      <section class="screen" id="screen-reader" aria-label="Leitor de diário"></section>
+
+      <!-- PLANNERS -->
+      <section class="screen" id="screen-planners" aria-label="Planners"></section>
+
+      <!-- CONFIG -->
+      <section class="screen" id="screen-config" aria-label="Configuração"></section>
+
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bnav" aria-label="Navegação principal">
+      <button class="ntab" id="tab-hoje"      data-tab="hoje"      aria-label="Hoje">
+        <!-- lucide:sun --> <span>Hoje</span>
+      </button>
+      <button class="ntab" id="tab-pendentes" data-tab="pendentes" aria-label="Pendentes">
+        <!-- lucide:circle-check --> <span>Pendentes</span>
+      </button>
+      <button class="ntab" id="tab-diarios"   data-tab="diarios"   aria-label="Diários">
+        <!-- lucide:book-open --> <span>Diários</span>
+      </button>
+      <button class="ntab" id="tab-planners"  data-tab="planners"  aria-label="Planners">
+        <!-- lucide:layers --> <span>Planners</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

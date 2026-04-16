@@ -1,0 +1,25 @@
+{
+  "name": "Concierge",
+  "short_name": "Concierge",
+  "description": "Vault pessoal no smartphone",
+  "start_url": "/concierge-mobile/",
+  "scope": "/concierge-mobile/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/concierge-mobile/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/concierge-mobile/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

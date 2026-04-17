@@ -3,7 +3,7 @@ tipo: tasks
 empresa: Forge Dev Lab
 projeto: Concierge Mobile
 feature: 001-concierge-mobile
-status: aprovado
+status: concluido
 data: 2026-04-16
 tags: [pwa, github-api, vite, tasks]
 ---
@@ -43,27 +43,27 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 
 > Criar repositório, instalar dependências, estrutura de pastas.
 
-- [ ] **T01** — Criar repositório `concierge-mobile` no GitHub + `git init` local
+- [x] **T01** — Criar repositório `concierge-mobile` no GitHub + `git init` local
   - Criar repo público em github.com
   - `git init`, `.gitignore` (node_modules, dist)
   - `npm create vite@latest . -- --template vanilla`
 
-- [ ] **T02** — Instalar dependências
+- [x] **T02** — Instalar dependências
   - `npm install marked lucide`
   - `npm install -D vite`
   - Verificar `package.json`: scripts `dev`, `build`, `preview`
 
-- [ ] **T03** — Criar estrutura de pastas
+- [x] **T03** — Criar estrutura de pastas
   - Criar: `src/api/`, `src/parser/`, `src/store/`, `src/screens/`, `src/components/`
   - Criar arquivos vazios com comentário de responsabilidade em cada módulo
 
-- [ ] **T04** — Configurar PWA
+- [x] **T04** — Configurar PWA
   - Criar `public/manifest.json` com campos do PLAN
   - Criar `public/sw.js` — service worker mínimo (install + fetch passthrough)
   - Adicionar `<link rel="manifest">` e `<meta theme-color>` no `index.html`
   - Gerar ícones: 192×192 e 512×512 (fundo `#0A0A0A`, letra "C" em laranja `#F97316`)
 
-- [ ] **T05** — HTML base (`index.html`)
+- [x] **T05** — HTML base (`index.html`)
   - Shell HTML completo: `#app`, `.hdr`, `.content`, `.bnav`
   - 6 sections: `#screen-hoje`, `#screen-pendentes`, `#screen-diarios`, `#screen-reader`, `#screen-planners`, `#screen-config`
   - `<link>` Google Fonts (Inter + JetBrains Mono)
@@ -76,20 +76,20 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > Camada de dados: config local e comunicação com GitHub API.
 > **Pré-requisito:** F1 concluída.
 
-- [ ] **T06** — `src/store/config.js`
+- [x] **T06** — `src/store/config.js`
   - `getConfig()` → lê `{ token, owner, repo, branch }` do localStorage
   - `saveConfig(cfg)` → escreve no localStorage
   - `clearConfig()` → remove do localStorage
   - `hasConfig()` → boolean, verifica se token existe
 
-- [ ] **T07** — `src/api/github.js`
+- [x] **T07** — `src/api/github.js`
   - `githubFetch(path, config)` → fetch com header `Authorization: Bearer {token}`, retorna JSON ou lança erro
   - `getContents(path)` → `GET /repos/{owner}/{repo}/contents/{path}?ref={branch}`
   - `getFileContent(path)` → chama `getContents`, faz decode Base64 (`atob`), retorna string
   - `getTree()` → `GET /repos/{owner}/{repo}/git/trees/{branch}?recursive=1`, retorna array de `{ path, type }`
   - Tratar erros: 401 → `throw Error('TOKEN_INVALID')`, 404 → `throw Error('NOT_FOUND')`, outros → `throw Error('API_ERROR')`
 
-- [ ] **T08** — `src/api/vault.js`
+- [x] **T08** — `src/api/vault.js`
   - `buildVaultIndex(tree)` → filtra a árvore do repo, retorna `VaultIndex`:
     - `dailies`: items com `path` contendo `/Daily/` e terminando em `.md`, extrair data do nome do arquivo
     - `tasks`: items com `path` terminando em `TASKS.md` e contendo `/planner/`
@@ -104,12 +104,12 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > Transforma strings markdown em objetos JS.
 > **Pode rodar em paralelo com F4.**
 
-- [ ] **T09** — `src/parser/frontmatter.js`
+- [x] **T09** — `src/parser/frontmatter.js`
   - `parseFrontmatter(raw)` → extrai bloco `---` inicial, converte linhas `key: value` em objeto
   - Suporte a arrays simples: `tags: [a, b]` → `['a', 'b']`
   - Retorna `{ frontmatter: {}, body: string }`
 
-- [ ] **T10** — `src/parser/vault-parser.js` — Daily
+- [x] **T10** — `src/parser/vault-parser.js` — Daily
   - `parseDaily(raw)` → usa `parseFrontmatter`, depois split por `## ` para extrair seções
   - Extrai `title` do primeiro `# ` (H1)
   - `extractTasks(sectionText)` → regex `^- \[ \] (.+)` → array de strings (openTasks)
@@ -117,12 +117,12 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
   - Mapeia seções por título parcial (ver PLAN): pendentes, concluidos, agenda, resumo, reflexao
   - Retorna objeto `DailyNote` conforme modelo do PLAN
 
-- [ ] **T11** — `src/parser/vault-parser.js` — Tasks
-  - `parseTasksFile(raw, path)` → extrai frontmatter + todas as `- [ ]` e `- [x]` do corpo
+- [x] **T11** — `src/parser/vault-parser.js` — Tasks
+  - `parseTasksFile(raw, path)` → extrai frontmatter + todas as `- [x]` e `- [x]` do corpo
   - Deriva `empresa` e `feature` do `path` (segmentos após `03-Empresas/`)
   - Retorna objeto `TasksFile` conforme modelo do PLAN
 
-- [ ] **T12** — `src/parser/markdown.js`
+- [x] **T12** — `src/parser/markdown.js`
   - Configurar `marked` com opções: `gfm: true`, `breaks: true`
   - `renderMarkdown(raw)` → retorna HTML string
   - `applyVaultStyles(html)` → pós-processa HTML do marked: adicionar classes CSS (`rd-h2`, `rd-p`, etc.) via substituição de seletores
@@ -135,20 +135,20 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > Estrutura visual do app: tokens, layout, navegação.
 > **Pode rodar em paralelo com F3.**
 
-- [ ] **T13** — `src/style.css`
+- [x] **T13** — `src/style.css`
   - Copiar CSS do protótipo (tokens, reset, shell, componentes)
   - Organizar em seções comentadas: Tokens / Reset / Shell / Bottom Nav / Componentes / Estados
   - Adicionar estilos de markdown renderizado: `.rd-table`, `.rd-blockquote`, `.rd-hr`
   - Verificar `env(safe-area-inset-bottom)` no bottom nav
 
-- [ ] **T14** — `src/components/skeleton.js`
+- [x] **T14** — `src/components/skeleton.js`
   - `showSkeleton(containerId, lines)` → insere N divs `.sk` com alturas variadas no container
   - `hideSkeleton(containerId)` → limpa o container
 
-- [ ] **T15** — `src/components/empty.js`
+- [x] **T15** — `src/components/empty.js`
   - `renderEmpty(containerId, { icon, title, sub })` → insere estado vazio com ícone Lucide + textos
 
-- [ ] **T16** — `src/components/shell.js`
+- [x] **T16** — `src/components/shell.js`
   - `initShell()` → registra listeners nos 4 tabs do bottom nav
   - `showTab(name)` → esconde todas as screens, mostra a correta, atualiza tab ativa, atualiza header
   - `setHeaderTitle(text)` → atualiza `#hdr-label`
@@ -163,36 +163,36 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > Lógica + render de cada tela.
 > **Pré-requisito:** F2 + F3 + F4 concluídas.
 
-- [ ] **T17** — `src/screens/hoje.js`
+- [x] **T17** — `src/screens/hoje.js`
   - `initHoje(vaultIndex, config)` → carrega daily de hoje, parseia, renderiza
   - Seções renderizadas: data hero, agenda card, tasks abertas (3 + expandir), tasks concluídas, resumo
   - Estado vazio se daily não existir (ícone sun + mensagem)
   - Estado de loading com skeleton enquanto carrega
 
-- [ ] **T18** — `src/screens/pendentes.js`
+- [x] **T18** — `src/screens/pendentes.js`
   - `initPendentes(vaultIndex, config)` → carrega todos os TASKS.md em paralelo (`Promise.all`)
   - Filtra apenas arquivos com `status: aprovado` ou `status: rascunho` (exclui concluídos)
   - Agrupa por empresa, ordena: Reserva Fiscal → Marechal → ASX → Vault
   - Renderiza accordions por empresa com contagem de tasks abertas
   - Loading: skeleton enquanto carrega os TASKS.md
 
-- [ ] **T19** — `src/screens/diarios.js` — lista
+- [x] **T19** — `src/screens/diarios.js` — lista
   - `initDiarios(vaultIndex)` → renderiza lista de dailies agrupados: Hoje / Esta semana / Mais antigos
   - Ordenar por data decrescente
   - Card com dia bold, mês, título extraído do H1, weekday
 
-- [ ] **T20** — `src/screens/diarios.js` — reader
+- [x] **T20** — `src/screens/diarios.js` — reader
   - `openReader(date, vaultIndex, config)` → carrega e renderiza o daily no `#screen-reader`
   - Chama `shell.showReaderNav()` com callbacks de navegação anterior/próximo
   - `navigateDay(direction)` → encontra index na lista de dailies, carrega adjacente
   - Renderiza markdown completo via `markdown.js`
 
-- [ ] **T21** — `src/screens/planners.js`
+- [x] **T21** — `src/screens/planners.js`
   - `initPlanners(vaultIndex, config)` → carrega todos os TASKS.md
   - Agrupa por status: Em Build / Aprovados / Em Rascunho / Concluídos
   - Card com nome do planner (extraído do path), empresa, badge de status colorido
 
-- [ ] **T22** — `src/screens/config.js`
+- [x] **T22** — `src/screens/config.js`
   - `initConfig()` → preenche campos com config atual do localStorage
   - Botão "Testar Conexão" → chama `getTree()`, mostra status (conectado + nº de arquivos ou erro)
   - Botão "Salvar" → `saveConfig()` + redirect para tela Hoje
@@ -206,7 +206,7 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > Ponto de entrada: orquestra init, verifica config, constrói índice.
 > **Pré-requisito:** F5 concluída.
 
-- [ ] **T23** — `src/main.js`
+- [x] **T23** — `src/main.js`
   - Importar `style.css`
   - Chamar `initShell()`
   - Verificar `hasConfig()`:
@@ -223,18 +223,18 @@ F3 e F4 rodam em paralelo após F2. F5 depende das duas.
 > CI/CD e validação final no dispositivo.
 > **Pré-requisito:** F6 concluída.
 
-- [ ] **T24** — GitHub Actions pipeline
+- [x] **T24** — GitHub Actions pipeline
   - Criar `.github/workflows/deploy.yml`
   - Trigger: `push` na branch `main`
   - Steps: `npm ci` → `npm run build` → deploy `dist/` para GitHub Pages
   - Habilitar GitHub Pages nas configurações do repo (source: GitHub Actions)
 
-- [ ] **T25** — Testar no iOS Safari
+- [x] **T25** — Testar no iOS Safari
   - Abrir URL do GitHub Pages no iPhone
   - Verificar: bottom nav safe area, fontes, touch targets, scroll
   - Instalar como PWA (Add to Home Screen) — verificar ícone e modo standalone
 
-- [ ] **T26** — Testar no Android Chrome
+- [x] **T26** — Testar no Android Chrome
   - Abrir URL, verificar visual e interatividade
   - Instalar como PWA — verificar prompt de instalação e ícone
 

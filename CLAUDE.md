@@ -78,7 +78,7 @@ O arquivo `planner/prototype.html` e a referencia visual definitiva. O CSS do pr
 - Lazy init das telas: cada screen so e inicializada na primeira visita
 
 ## Dependencias com Outros Projetos
-- **Vault concierge** — fonte de dados (repositorio `felippeabielcosta/concierge`)
+- **Vault concierge** — fonte de dados (repositorio `felippecostabiel-web/concierge`)
 - Nao ha dependencias de outros projetos de codigo
 
 ## Planner (Documentacao Viva do Projeto)
